@@ -34,13 +34,27 @@ sim_in          = find_system(blk, 'FollowLinks', 'on', 'LookUnderMasks', 'all',
 sim_out         = find_system(blk, 'FollowLinks', 'on', 'LookUnderMasks', 'all',     'BlockType','Outport');
 
 if(length(gateway_ins)==2^(sys_config))
+    % we need to modify the port names before returning.
+    for i=1:2^(sys_config-1)
+        adc_do_gw_in_name = clear_name([gcb, '_', 'adc',num2str(i-1),'_','dout']);
+        adc_di_inport_name = clear_name(['adc',num2str(i-1),'_in','_sim']);
+        adc_do_outport_name = clear_name(['adc',num2str(i-1),'_dout']);
+        set_param(sim_in{2*i-1},'Name',adc_di_inport_name);
+        set_param(sim_out{2*i-1},'Name', adc_do_outport_name);
+        set_param(gateway_ins{2*i-1},'Name',adc_do_gw_in_name);
+        
+        adc_sync_gw_in_name = clear_name([gcb, '_', 'adc',num2str(i-1),'_','sync']);
+        adc_sync_inport_sim_name = clear_name(['adc',num2str(i-1),'_sync_in','_sim']);
+        adc_sync_ouport_sim_name = clear_name(['adc',num2str(i-1),'_sync_out']);
+        set_param(sim_in{2*i},'Name',adc_sync_inport_sim_name);
+        set_param(sim_out{2*i},'Name', adc_sync_ouport_sim_name);
+        set_param(gateway_ins{2*i},'Name',adc_sync_gw_in_name);
+    end
     return;
 end
 
 %delete all the lines and blocks,and will re draw them later
 delete_lines(blk);
-
-
 
 for i=1:length(gateway_ins)
    delete_block(gateway_ins(i)) 
